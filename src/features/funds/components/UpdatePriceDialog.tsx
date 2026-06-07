@@ -81,7 +81,7 @@ export function UpdatePriceDialog({
               id="unit_price"
               type="number"
               step="0.000001"
-              placeholder="0.548234"
+              placeholder="1535.692328"
               {...register('unit_price')}
               autoFocus
             />

@@ -117,6 +117,7 @@ export function useStocks() {
     isLoading: stocksQuery.isLoading,
     isRefreshing: pricesQuery.isFetching,
     isAdding: addMutation.isPending,
+    isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };
 }

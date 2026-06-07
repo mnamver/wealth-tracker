@@ -24,11 +24,13 @@ export default function StocksPage() {
     sortDirection,
     handleSort,
     addStock,
+    updateStock,
     deleteStock,
     refreshPrices,
     isLoading,
     isRefreshing,
     isAdding,
+    isUpdating,
     isDeleting,
   } = useStocks();
 
@@ -47,12 +49,7 @@ export default function StocksPage() {
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={refreshPrices}
-            disabled={isRefreshing}
-          >
+          <Button variant="outline" size="sm" onClick={refreshPrices} disabled={isRefreshing}>
             <RefreshCw className={cn('h-3.5 w-3.5', isRefreshing && 'animate-spin')} />
             Güncel Fiyatları Yenile
           </Button>
@@ -71,7 +68,9 @@ export default function StocksPage() {
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
+            onUpdateQuantity={(id, qty) => updateStock({ id, values: { quantity: qty } })}
             onDelete={deleteStock}
+            isUpdating={isUpdating}
             isDeleting={isDeleting}
           />
         </CardContent>
