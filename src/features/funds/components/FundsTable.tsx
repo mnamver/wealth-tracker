@@ -1,19 +1,16 @@
 import { Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
-import { UpdatePriceDialog } from './UpdatePriceDialog';
 import { EditFundQuantityDialog } from './EditFundQuantityDialog';
 import { formatCurrency, formatNumber, formatPercent } from '../../../utils/formatters';
 import { cn } from '../../../lib/utils';
-import type { FundWithValue, UpdatePriceValues } from '../../../types';
+import type { FundWithValue } from '../../../types';
 
 interface FundsTableProps {
   funds: FundWithValue[];
   totalValue: number;
-  onUpdatePrice: (id: string, values: UpdatePriceValues) => Promise<unknown>;
   onUpdateQuantity: (id: string, quantity: number) => Promise<unknown>;
   onDelete: (id: string) => void;
-  isUpdatingPrice: boolean;
   isUpdatingQuantity: boolean;
   isDeleting: boolean;
 }
@@ -21,10 +18,8 @@ interface FundsTableProps {
 export function FundsTable({
   funds,
   totalValue,
-  onUpdatePrice,
   onUpdateQuantity,
   onDelete,
-  isUpdatingPrice,
   isUpdatingQuantity,
   isDeleting,
 }: FundsTableProps) {
@@ -115,12 +110,6 @@ export function FundsTable({
                     currentQuantity={fund.quantity}
                     onSubmit={(qty) => onUpdateQuantity(fund.id, qty)}
                     isLoading={isUpdatingQuantity}
-                  />
-                  <UpdatePriceDialog
-                    fundCode={fund.fund_code}
-                    currentPrice={fund.unit_price}
-                    onSubmit={(values) => onUpdatePrice(fund.id, values)}
-                    isLoading={isUpdatingPrice}
                   />
                   <Button
                     variant="ghost"

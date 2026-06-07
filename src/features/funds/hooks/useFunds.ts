@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import { fundsService } from '../../../services/fundsService';
 import { supabase } from '../../../lib/supabase';
-import type { FundFormValues, FundWithValue, UpdatePriceValues } from '../../../types';
+import type { FundFormValues, FundWithValue } from '../../../types';
 
 interface LivePrice {
   price: number;
@@ -41,12 +41,6 @@ export function useFunds() {
       queryClient.invalidateQueries({ queryKey: ['funds'] });
       queryClient.invalidateQueries({ queryKey: ['fund-prices'] });
     },
-  });
-
-  const updatePriceMutation = useMutation({
-    mutationFn: ({ id, values }: { id: string; values: UpdatePriceValues }) =>
-      fundsService.updatePrice(id, values),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
   });
 
   const updateQuantityMutation = useMutation({
@@ -102,8 +96,6 @@ export function useFunds() {
     funds: fundsWithValue,
     totalValue,
     addFund: addMutation.mutateAsync,
-    updatePrice: (id: string, values: UpdatePriceValues) =>
-      updatePriceMutation.mutateAsync({ id, values }),
     updateQuantity: (id: string, quantity: number) =>
       updateQuantityMutation.mutateAsync({ id, quantity }),
     deleteFund: deleteMutation.mutate,
@@ -111,7 +103,6 @@ export function useFunds() {
     isLoading: fundsQuery.isLoading,
     isRefreshing: pricesQuery.isFetching,
     isAdding: addMutation.isPending,
-    isUpdatingPrice: updatePriceMutation.isPending,
     isUpdatingQuantity: updateQuantityMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };

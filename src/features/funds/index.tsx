@@ -21,14 +21,12 @@ export default function FundsPage() {
     funds,
     totalValue,
     addFund,
-    updatePrice,
     updateQuantity,
     deleteFund,
     refreshPrices,
     isLoading,
     isRefreshing,
     isAdding,
-    isUpdatingPrice,
     isUpdatingQuantity,
     isDeleting,
   } = useFunds();
@@ -83,10 +81,8 @@ export default function FundsPage() {
           <FundsTable
             funds={funds}
             totalValue={totalValue}
-            onUpdatePrice={updatePrice}
             onUpdateQuantity={updateQuantity}
             onDelete={deleteFund}
-            isUpdatingPrice={isUpdatingPrice}
             isUpdatingQuantity={isUpdatingQuantity}
             isDeleting={isDeleting}
           />
