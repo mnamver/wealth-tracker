@@ -9,8 +9,12 @@ export interface Fund {
 }
 
 export interface FundWithValue extends Fund {
+  currentPrice: number;
   currentValue: number;
   portfolioShare: number;
+  dailyChangePercent: number | null;
+  priceUpdatedAt: string | null;
+  isLive: boolean;
 }
 
 export interface FundFormValues {

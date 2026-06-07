@@ -1,9 +1,9 @@
-import { Trash2, Clock } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { UpdatePriceDialog } from './UpdatePriceDialog';
 import { EditFundQuantityDialog } from './EditFundQuantityDialog';
-import { formatCurrency, formatNumber, formatDate } from '../../../utils/formatters';
+import { formatCurrency, formatNumber, formatPercent } from '../../../utils/formatters';
 import { cn } from '../../../lib/utils';
 import type { FundWithValue, UpdatePriceValues } from '../../../types';
 
@@ -49,8 +49,8 @@ export function FundsTable({
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Birim Pay</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Güncel Değer</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Pay %</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden lg:table-cell">Son Güncelleme</th>
-            <th className="w-20" />
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Günlük</th>
+            <th className="w-24" />
           </tr>
         </thead>
         <tbody>
@@ -61,18 +61,23 @@ export function FundsTable({
             >
               <td className="px-4 py-3.5">
                 <div className="flex flex-col gap-1">
-                  <span className="font-semibold text-sm">{fund.fund_code}</span>
-                  {fund.unit_price === 0 && (
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-semibold text-sm">{fund.fund_code}</span>
+                    {fund.isLive && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-green-500" title="Canlı fiyat" />
+                    )}
+                  </div>
+                  {!fund.isLive && fund.currentPrice === 0 && (
                     <Badge variant="warning" className="text-[10px] py-0 w-fit">Fiyat girilmedi</Badge>
                   )}
                 </div>
               </td>
               <td className="px-4 py-3.5 text-sm text-muted-foreground hidden sm:table-cell">
-                {formatNumber(fund.quantity, 4)}
+                {formatNumber(fund.quantity, 0)}
               </td>
               <td className="px-4 py-3.5">
-                <span className={cn('text-sm font-mono', fund.unit_price === 0 && 'text-muted-foreground')}>
-                  {fund.unit_price > 0 ? `₺${fund.unit_price.toFixed(6)}` : '—'}
+                <span className={cn('text-sm font-mono', fund.currentPrice === 0 && 'text-muted-foreground')}>
+                  {fund.currentPrice > 0 ? `₺${fund.currentPrice.toFixed(6)}` : '—'}
                 </span>
               </td>
               <td className="px-4 py-3.5 text-sm font-medium">
@@ -91,12 +96,14 @@ export function FundsTable({
                   </span>
                 </div>
               </td>
-              <td className="px-4 py-3.5 hidden lg:table-cell">
-                {fund.price_updated_at ? (
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3" />
-                    {formatDate(fund.price_updated_at)}
-                  </div>
+              <td className="px-4 py-3.5 hidden sm:table-cell">
+                {fund.dailyChangePercent !== null ? (
+                  <Badge
+                    variant={fund.dailyChangePercent >= 0 ? 'success' : 'danger'}
+                    className="text-xs"
+                  >
+                    {formatPercent(fund.dailyChangePercent)}
+                  </Badge>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>
                 )}

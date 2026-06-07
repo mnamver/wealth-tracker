@@ -1,7 +1,10 @@
+import { RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
+import { Button } from '../../components/ui/button';
 import { AddFundForm } from './components/AddFundForm';
 import { FundsTable } from './components/FundsTable';
 import { useFunds } from './hooks/useFunds';
+import { cn } from '../../lib/utils';
 import { formatCurrency } from '../../utils/formatters';
 
 function FundsSkeleton() {
@@ -21,7 +24,9 @@ export default function FundsPage() {
     updatePrice,
     updateQuantity,
     deleteFund,
+    refreshPrices,
     isLoading,
+    isRefreshing,
     isAdding,
     isUpdatingPrice,
     isUpdatingQuantity,
@@ -29,9 +34,6 @@ export default function FundsPage() {
   } = useFunds();
 
   if (isLoading) return <FundsSkeleton />;
-
-  const totalPrincipal = funds.reduce((s, f) => s + f.quantity * 1, 0);
-  void totalPrincipal;
 
   return (
     <div className="space-y-6">
@@ -45,7 +47,13 @@ export default function FundsPage() {
             </p>
           )}
         </div>
-        <AddFundForm onSubmit={addFund} isLoading={isAdding} />
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={refreshPrices} disabled={isRefreshing}>
+            <RefreshCw className={cn('h-3.5 w-3.5', isRefreshing && 'animate-spin')} />
+            Güncel Fiyatları Yenile
+          </Button>
+          <AddFundForm onSubmit={addFund} isLoading={isAdding} />
+        </div>
       </div>
 
       {funds.length > 0 && (
@@ -59,9 +67,9 @@ export default function FundsPage() {
             <p className="text-lg font-bold mt-1">{formatCurrency(totalValue)}</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-4 col-span-2 sm:col-span-1">
-            <p className="text-xs text-muted-foreground">Fiyat Güncelleme</p>
+            <p className="text-xs text-muted-foreground">Fiyat Kaynağı</p>
             <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-              TEFAS fiyatları günde 1 kez güncellenir. Kalem ikonuna tıklayarak birim pay değerini güncelleyebilirsin.
+              Fiyatlar Fonoloji API'den otomatik çekilir. Kalem ikonu ile manuel de güncelleyebilirsin.
             </p>
           </div>
         </div>
