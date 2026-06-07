@@ -22,6 +22,12 @@ export function useFunds() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
   });
 
+  const updateQuantityMutation = useMutation({
+    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
+      fundsService.updateQuantity(id, quantity),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: fundsService.delete,
     onMutate: async (id) => {
@@ -59,10 +65,13 @@ export function useFunds() {
     addFund: addMutation.mutateAsync,
     updatePrice: (id: string, values: UpdatePriceValues) =>
       updatePriceMutation.mutateAsync({ id, values }),
+    updateQuantity: (id: string, quantity: number) =>
+      updateQuantityMutation.mutateAsync({ id, quantity }),
     deleteFund: deleteMutation.mutate,
     isLoading: fundsQuery.isLoading,
     isAdding: addMutation.isPending,
-    isUpdating: updatePriceMutation.isPending,
+    isUpdatingPrice: updatePriceMutation.isPending,
+    isUpdatingQuantity: updateQuantityMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };
 }

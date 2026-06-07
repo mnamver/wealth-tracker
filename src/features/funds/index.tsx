@@ -19,10 +19,12 @@ export default function FundsPage() {
     totalValue,
     addFund,
     updatePrice,
+    updateQuantity,
     deleteFund,
     isLoading,
     isAdding,
-    isUpdating,
+    isUpdatingPrice,
+    isUpdatingQuantity,
     isDeleting,
   } = useFunds();
 
@@ -74,8 +76,10 @@ export default function FundsPage() {
             funds={funds}
             totalValue={totalValue}
             onUpdatePrice={updatePrice}
+            onUpdateQuantity={updateQuantity}
             onDelete={deleteFund}
-            isUpdating={isUpdating}
+            isUpdatingPrice={isUpdatingPrice}
+            isUpdatingQuantity={isUpdatingQuantity}
             isDeleting={isDeleting}
           />
         </CardContent>

@@ -2,6 +2,7 @@ import { Trash2, Clock } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { UpdatePriceDialog } from './UpdatePriceDialog';
+import { EditFundQuantityDialog } from './EditFundQuantityDialog';
 import { formatCurrency, formatNumber, formatDate } from '../../../utils/formatters';
 import { cn } from '../../../lib/utils';
 import type { FundWithValue, UpdatePriceValues } from '../../../types';
@@ -10,8 +11,10 @@ interface FundsTableProps {
   funds: FundWithValue[];
   totalValue: number;
   onUpdatePrice: (id: string, values: UpdatePriceValues) => Promise<unknown>;
+  onUpdateQuantity: (id: string, quantity: number) => Promise<unknown>;
   onDelete: (id: string) => void;
-  isUpdating: boolean;
+  isUpdatingPrice: boolean;
+  isUpdatingQuantity: boolean;
   isDeleting: boolean;
 }
 
@@ -19,8 +22,10 @@ export function FundsTable({
   funds,
   totalValue,
   onUpdatePrice,
+  onUpdateQuantity,
   onDelete,
-  isUpdating,
+  isUpdatingPrice,
+  isUpdatingQuantity,
   isDeleting,
 }: FundsTableProps) {
   if (funds.length === 0) {
@@ -98,11 +103,17 @@ export function FundsTable({
               </td>
               <td className="px-4 py-3.5">
                 <div className="flex items-center gap-1">
+                  <EditFundQuantityDialog
+                    fundCode={fund.fund_code}
+                    currentQuantity={fund.quantity}
+                    onSubmit={(qty) => onUpdateQuantity(fund.id, qty)}
+                    isLoading={isUpdatingQuantity}
+                  />
                   <UpdatePriceDialog
                     fundCode={fund.fund_code}
                     currentPrice={fund.unit_price}
                     onSubmit={(values) => onUpdatePrice(fund.id, values)}
-                    isLoading={isUpdating}
+                    isLoading={isUpdatingPrice}
                   />
                   <Button
                     variant="ghost"
