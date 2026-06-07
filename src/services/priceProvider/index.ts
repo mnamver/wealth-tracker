@@ -1,12 +1,12 @@
 export type { PriceData, PriceProvider } from './types';
 export { createMockProvider } from './mockProvider';
+export { createYahooFinanceProvider } from './yahooFinanceProvider';
 
-import { createMockProvider } from './mockProvider';
+import { createYahooFinanceProvider } from './yahooFinanceProvider';
 import type { PriceProvider } from './types';
 
-// Swap this factory to switch providers (e.g. createYahooProvider, createBistProvider)
 export function createPriceProvider(): PriceProvider {
-  return createMockProvider();
+  return createYahooFinanceProvider();
 }
 
 export const priceProvider = createPriceProvider();
