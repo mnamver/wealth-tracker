@@ -9,9 +9,10 @@ function DashboardSkeleton() {
   return (
     <div className="space-y-4 animate-pulse">
       <div className="h-36 rounded-xl bg-muted" />
-      <div className="grid grid-cols-2 gap-3">
-        <div className="h-32 rounded-xl bg-muted" />
-        <div className="h-32 rounded-xl bg-muted" />
+      <div className="grid grid-cols-3 gap-3">
+        <div className="h-28 rounded-xl bg-muted" />
+        <div className="h-28 rounded-xl bg-muted" />
+        <div className="h-28 rounded-xl bg-muted" />
       </div>
       <div className="h-72 rounded-xl bg-muted" />
       <div className="h-72 rounded-xl bg-muted" />
@@ -23,6 +24,7 @@ function DashboardContent() {
   const {
     stocksTotal,
     depositsTotal,
+    fundsTotal,
     totalNetWorth,
     todayChange,
     todayChangePercent,
@@ -47,11 +49,16 @@ function DashboardContent() {
       <AssetBreakdownCards
         stocksTotal={stocksTotal}
         depositsTotal={depositsTotal}
+        fundsTotal={fundsTotal}
         totalNetWorth={totalNetWorth}
       />
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <PortfolioDistributionChart stocksTotal={stocksTotal} depositsTotal={depositsTotal} />
+        <PortfolioDistributionChart
+          stocksTotal={stocksTotal}
+          depositsTotal={depositsTotal}
+          fundsTotal={fundsTotal}
+        />
         <WealthHistoryChart snapshots={snapshots} />
       </div>
     </div>
@@ -60,7 +67,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<DashboardContent />}>
+    <Suspense fallback={<DashboardSkeleton />}>
       <DashboardContent />
     </Suspense>
   );

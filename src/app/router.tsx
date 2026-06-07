@@ -5,6 +5,7 @@ import { AppLayout } from '../components/layout/AppLayout';
 const DashboardPage = lazy(() => import('../features/dashboard'));
 const StocksPage = lazy(() => import('../features/stocks'));
 const DepositsPage = lazy(() => import('../features/deposits'));
+const FundsPage = lazy(() => import('../features/funds'));
 
 function PageLoader() {
   return (
@@ -40,6 +41,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <DepositsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'funds',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <FundsPage />
           </Suspense>
         ),
       },

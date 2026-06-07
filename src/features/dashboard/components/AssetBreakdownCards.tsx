@@ -1,64 +1,80 @@
-import { TrendingUp, Building2 } from 'lucide-react';
+import { TrendingUp, Building2, BarChart3 } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/card';
 import { formatCurrency } from '../../../utils/formatters';
 
 interface AssetBreakdownCardsProps {
   stocksTotal: number;
   depositsTotal: number;
+  fundsTotal: number;
   totalNetWorth: number;
 }
 
 export function AssetBreakdownCards({
   stocksTotal,
   depositsTotal,
+  fundsTotal,
   totalNetWorth,
 }: AssetBreakdownCardsProps) {
   const stocksShare = totalNetWorth > 0 ? (stocksTotal / totalNetWorth) * 100 : 0;
   const depositsShare = totalNetWorth > 0 ? (depositsTotal / totalNetWorth) * 100 : 0;
+  const fundsShare = totalNetWorth > 0 ? (fundsTotal / totalNetWorth) * 100 : 0;
+
+  const cards = [
+    {
+      label: 'Hisse Senetleri',
+      value: stocksTotal,
+      share: stocksShare,
+      icon: TrendingUp,
+      color: 'text-blue-500',
+      bg: 'bg-blue-500/10',
+      bar: 'bg-blue-500',
+    },
+    {
+      label: 'Faiz / Mevduat',
+      value: depositsTotal,
+      share: depositsShare,
+      icon: Building2,
+      color: 'text-emerald-500',
+      bg: 'bg-emerald-500/10',
+      bar: 'bg-emerald-500',
+    },
+    {
+      label: 'Yatırım Fonları',
+      value: fundsTotal,
+      share: fundsShare,
+      icon: BarChart3,
+      color: 'text-violet-500',
+      bg: 'bg-violet-500/10',
+      bar: 'bg-violet-500',
+    },
+  ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 md:gap-4">
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-500/10">
-              <TrendingUp className="h-4 w-4 text-blue-500" />
+    <div className="grid grid-cols-3 gap-3 md:gap-4">
+      {cards.map(({ label, value, share, icon: Icon, color, bg, bar }) => (
+        <Card key={label}>
+          <CardContent className="p-4 md:p-5">
+            <div className="flex items-center justify-between mb-2">
+              <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${bg}`}>
+                <Icon className={`h-3.5 w-3.5 ${color}`} />
+              </div>
+              <span className="text-xs font-medium text-muted-foreground">
+                %{share.toFixed(1)}
+              </span>
             </div>
-            <span className="text-xs font-medium text-muted-foreground">
-              %{stocksShare.toFixed(1)}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mb-1">Hisse Senetleri</p>
-          <p className="text-xl font-bold tracking-tight">{formatCurrency(stocksTotal)}</p>
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-blue-500 transition-all duration-700"
-              style={{ width: `${stocksShare}%` }}
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-500/10">
-              <Building2 className="h-4 w-4 text-emerald-500" />
+            <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+            <p className="text-base font-bold tracking-tight md:text-lg">
+              {formatCurrency(value)}
+            </p>
+            <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${bar}`}
+                style={{ width: `${share}%` }}
+              />
             </div>
-            <span className="text-xs font-medium text-muted-foreground">
-              %{depositsShare.toFixed(1)}
-            </span>
-          </div>
-          <p className="text-xs text-muted-foreground mb-1">Faiz / Mevduat</p>
-          <p className="text-xl font-bold tracking-tight">{formatCurrency(depositsTotal)}</p>
-          <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full rounded-full bg-emerald-500 transition-all duration-700"
-              style={{ width: `${depositsShare}%` }}
-            />
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      ))}
     </div>
   );
 }

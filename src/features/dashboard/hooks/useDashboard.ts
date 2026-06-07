@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useCallback } from 'react';
 import { stocksService } from '../../../services/stocksService';
 import { depositsService } from '../../../services/depositsService';
+import { fundsService } from '../../../services/fundsService';
 import { snapshotsService } from '../../../services/snapshotsService';
 import { priceProvider } from '../../../services/priceProvider';
 import { enrichDeposit, calculateTotalDepositsValue } from '../../../utils/depositCalculations';
@@ -19,6 +20,11 @@ export function useDashboard() {
   const depositsQuery = useQuery({
     queryKey: ['deposits'],
     queryFn: depositsService.getAll,
+  });
+
+  const fundsQuery = useQuery({
+    queryKey: ['funds'],
+    queryFn: fundsService.getAll,
   });
 
   const pricesQuery = useQuery({
@@ -42,7 +48,7 @@ export function useDashboard() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['snapshots'] }),
   });
 
-  const enrichedStocks: StockWithPrice[] = useCallback(() => {
+  const enrichedStocks: StockWithPrice[] = (() => {
     if (!stocksQuery.data || !pricesQuery.data) return [];
     const raw = stocksQuery.data.map((stock) => {
       const priceData = pricesQuery.data.get(stock.symbol);
@@ -57,32 +63,38 @@ export function useDashboard() {
       };
     });
     return calculatePortfolioShares(raw);
-  }, [stocksQuery.data, pricesQuery.data])();
+  })();
 
   const enrichedDeposits = (depositsQuery.data ?? []).map(enrichDeposit);
 
   const stocksTotal = enrichedStocks.reduce((s, x) => s + x.currentValue, 0);
   const depositsTotal = calculateTotalDepositsValue(depositsQuery.data ?? []);
-  const totalNetWorth = stocksTotal + depositsTotal;
+  const fundsTotal = (fundsQuery.data ?? []).reduce(
+    (s, f) => s + f.quantity * f.unit_price,
+    0,
+  );
+  const totalNetWorth = stocksTotal + depositsTotal + fundsTotal;
 
   const snapshots = snapshotsQuery.data ?? [];
-  const previousTotal = snapshots.length >= 2 ? snapshots[snapshots.length - 2].total_net_worth : 0;
+  const previousTotal =
+    snapshots.length >= 2 ? snapshots[snapshots.length - 2].total_net_worth : 0;
   const todayChange = totalNetWorth - previousTotal;
   const todayChangePercent = previousTotal > 0 ? (todayChange / previousTotal) * 100 : 0;
 
   const refreshPrices = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ['prices'] });
-    // Save snapshot after refresh
     if (totalNetWorth > 0) {
       saveSnapshotMutation.mutate({
         total_net_worth: totalNetWorth,
         stocks_value: stocksTotal,
         deposits_value: depositsTotal,
+        funds_value: fundsTotal,
       });
     }
-  }, [queryClient, totalNetWorth, stocksTotal, depositsTotal, saveSnapshotMutation]);
+  }, [queryClient, totalNetWorth, stocksTotal, depositsTotal, fundsTotal, saveSnapshotMutation]);
 
-  const isLoading = stocksQuery.isLoading || depositsQuery.isLoading;
+  const isLoading =
+    stocksQuery.isLoading || depositsQuery.isLoading || fundsQuery.isLoading;
   const isRefreshing = pricesQuery.isFetching;
 
   return {
@@ -90,6 +102,7 @@ export function useDashboard() {
     enrichedDeposits,
     stocksTotal,
     depositsTotal,
+    fundsTotal,
     totalNetWorth,
     todayChange,
     todayChangePercent,

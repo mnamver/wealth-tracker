@@ -1,14 +1,15 @@
 import { useMemo } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../../../components/ui/card';
-import { formatCurrency, formatPercent } from '../../../utils/formatters';
+import { formatCurrency } from '../../../utils/formatters';
 
 interface PortfolioDistributionChartProps {
   stocksTotal: number;
   depositsTotal: number;
+  fundsTotal: number;
 }
 
-const COLORS = ['#3b82f6', '#10b981'];
+const COLORS = ['#3b82f6', '#10b981', '#8b5cf6'];
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -24,7 +25,7 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
       <p className="text-sm font-semibold text-foreground">{item.name}</p>
       <p className="text-sm text-muted-foreground">{formatCurrency(item.value)}</p>
       <p className="text-xs text-muted-foreground">
-        {total > 0 ? formatPercent((item.value / total) * 100, 1) : ''}
+        {total > 0 ? `%${((item.value / total) * 100).toFixed(1)}` : ''}
       </p>
     </div>
   );
@@ -33,16 +34,19 @@ function CustomTooltip({ active, payload }: CustomTooltipProps) {
 export function PortfolioDistributionChart({
   stocksTotal,
   depositsTotal,
+  fundsTotal,
 }: PortfolioDistributionChartProps) {
   const data = useMemo(
-    () => [
-      { name: 'Hisse Senetleri', value: stocksTotal },
-      { name: 'Faiz / Mevduat', value: depositsTotal },
-    ],
-    [stocksTotal, depositsTotal],
+    () =>
+      [
+        { name: 'Hisse Senetleri', value: stocksTotal },
+        { name: 'Faiz / Mevduat', value: depositsTotal },
+        { name: 'Yatırım Fonları', value: fundsTotal },
+      ].filter((d) => d.value > 0),
+    [stocksTotal, depositsTotal, fundsTotal],
   );
 
-  const hasData = stocksTotal > 0 || depositsTotal > 0;
+  const hasData = data.length > 0;
 
   return (
     <Card>
@@ -67,11 +71,7 @@ export function PortfolioDistributionChart({
                 dataKey="value"
               >
                 {data.map((_, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={COLORS[index % COLORS.length]}
-                    strokeWidth={0}
-                  />
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} strokeWidth={0} />
                 ))}
               </Pie>
               <Tooltip content={<CustomTooltip />} />

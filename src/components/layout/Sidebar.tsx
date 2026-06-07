@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Building2, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Building2, BarChart3, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../hooks/useTheme';
 
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/stocks', icon: TrendingUp, label: 'Hisse Senetleri' },
   { to: '/deposits', icon: Building2, label: 'Mevduat' },
+  { to: '/funds', icon: BarChart3, label: 'Yatırım Fonları' },
 ];
 
 export function Sidebar() {
@@ -47,7 +48,11 @@ export function Sidebar() {
         className="flex h-10 w-10 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground lg:w-full lg:justify-start lg:gap-3 lg:px-3"
         aria-label="Tema değiştir"
       >
-        {theme === 'dark' ? <Sun className="h-4 w-4 shrink-0" /> : <Moon className="h-4 w-4 shrink-0" />}
+        {theme === 'dark' ? (
+          <Sun className="h-4 w-4 shrink-0" />
+        ) : (
+          <Moon className="h-4 w-4 shrink-0" />
+        )}
         <span className="hidden text-sm font-medium lg:block">
           {theme === 'dark' ? 'Açık Tema' : 'Koyu Tema'}
         </span>

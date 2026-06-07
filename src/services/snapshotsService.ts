@@ -13,7 +13,9 @@ export const snapshotsService = {
     return data ?? [];
   },
 
-  async upsertToday(values: Omit<SnapshotInsert, 'date'>): Promise<Snapshot> {
+  async upsertToday(
+    values: Omit<SnapshotInsert, 'date'> & { funds_value?: number },
+  ): Promise<Snapshot> {
     const today = new Date().toISOString().split('T')[0];
 
     const { data, error } = await supabase
@@ -24,6 +26,7 @@ export const snapshotsService = {
           total_net_worth: values.total_net_worth,
           stocks_value: values.stocks_value,
           deposits_value: values.deposits_value,
+          funds_value: values.funds_value ?? 0,
         },
         { onConflict: 'date' },
       )
