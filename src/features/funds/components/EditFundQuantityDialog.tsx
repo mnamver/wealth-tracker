@@ -17,7 +17,7 @@ import {
 } from '../../../components/ui/dialog';
 
 const schema = z.object({
-  quantity: z.coerce.number().positive('Adet pozitif olmalı'),
+  quantity: z.coerce.number().int('Adet tam sayı olmalı').positive('Adet pozitif olmalı'),
 });
 
 type FormValues = { quantity: number };
@@ -73,8 +73,8 @@ export function EditFundQuantityDialog({
             <Input
               id="fund-quantity"
               type="number"
-              step="0.000001"
-              placeholder="255.000000"
+              step="1"
+              placeholder="255"
               {...register('quantity')}
               autoFocus
             />

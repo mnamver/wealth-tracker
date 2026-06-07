@@ -19,7 +19,7 @@ import type { FundFormValues } from '../../../types';
 
 const schema = z.object({
   fund_code: z.string().min(1, 'Fon kodu zorunlu').max(10),
-  quantity: z.coerce.number().positive('Adet pozitif olmalı'),
+  quantity: z.coerce.number().int('Adet tam sayı olmalı').positive('Adet pozitif olmalı'),
   unit_price: z.coerce.number().min(0, 'Birim pay değeri 0 veya üzeri olmalı'),
 });
 
@@ -82,7 +82,7 @@ export function AddFundForm({ onSubmit, isLoading }: AddFundFormProps) {
             <Input
               id="quantity"
               type="number"
-              step="0.0001"
+              step="1"
               placeholder="255"
               {...register('quantity')}
             />
