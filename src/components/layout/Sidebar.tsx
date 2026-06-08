@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, TrendingUp, Building2, BarChart3, Sun, Moon } from 'lucide-react';
+import { LayoutDashboard, TrendingUp, Building2, BarChart3, Coins, Sun, Moon } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useTheme } from '../../hooks/useTheme';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/stocks', icon: TrendingUp, label: 'Hisse Senetleri' },
+  { to: '/currency', icon: Coins, label: 'Doviz / Altin' },
   { to: '/deposits', icon: Building2, label: 'Mevduat' },
   { to: '/funds', icon: BarChart3, label: 'Yatırım Fonları' },
 ];

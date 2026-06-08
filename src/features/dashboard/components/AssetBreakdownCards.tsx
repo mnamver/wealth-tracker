@@ -1,4 +1,4 @@
-import { TrendingUp, Building2, BarChart3 } from 'lucide-react';
+import { TrendingUp, Building2, BarChart3, Coins } from 'lucide-react';
 import { Card, CardContent } from '../../../components/ui/card';
 import { formatCurrency } from '../../../utils/formatters';
 
@@ -6,6 +6,7 @@ interface AssetBreakdownCardsProps {
   stocksTotal: number;
   depositsTotal: number;
   fundsTotal: number;
+  currencyTotal: number;
   totalNetWorth: number;
 }
 
@@ -13,11 +14,13 @@ export function AssetBreakdownCards({
   stocksTotal,
   depositsTotal,
   fundsTotal,
+  currencyTotal,
   totalNetWorth,
 }: AssetBreakdownCardsProps) {
   const stocksShare = totalNetWorth > 0 ? (stocksTotal / totalNetWorth) * 100 : 0;
   const depositsShare = totalNetWorth > 0 ? (depositsTotal / totalNetWorth) * 100 : 0;
   const fundsShare = totalNetWorth > 0 ? (fundsTotal / totalNetWorth) * 100 : 0;
+  const currencyShare = totalNetWorth > 0 ? (currencyTotal / totalNetWorth) * 100 : 0;
 
   const cards = [
     {
@@ -47,10 +50,19 @@ export function AssetBreakdownCards({
       bg: 'bg-violet-500/10',
       bar: 'bg-violet-500',
     },
+    {
+      label: 'Döviz / Altın',
+      value: currencyTotal,
+      share: currencyShare,
+      icon: Coins,
+      color: 'text-amber-500',
+      bg: 'bg-amber-500/10',
+      bar: 'bg-amber-500',
+    },
   ];
 
   return (
-    <div className="grid grid-cols-3 gap-3 md:gap-4">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
       {cards.map(({ label, value, share, icon: Icon, color, bg, bar }) => (
         <Card key={label}>
           <CardContent className="p-4 md:p-5">

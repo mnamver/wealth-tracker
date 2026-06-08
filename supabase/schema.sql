@@ -32,6 +32,17 @@ create table if not exists deposits (
 );
 
 -- ============================================================
+-- CURRENCY / GOLD TABLE
+-- ============================================================
+create table if not exists currency_assets (
+  id uuid primary key default uuid_generate_v4(),
+  asset_type text not null check (asset_type in ('USD', 'EUR', 'GOLD')),
+  quantity numeric(18, 4) not null check (quantity > 0),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- ============================================================
 -- SNAPSHOTS TABLE
 -- ============================================================
 create table if not exists snapshots (
@@ -63,11 +74,16 @@ create trigger deposits_updated_at
   before update on deposits
   for each row execute function update_updated_at();
 
+create trigger currency_assets_updated_at
+  before update on currency_assets
+  for each row execute function update_updated_at();
+
 -- ============================================================
 -- INDEXES
 -- ============================================================
 create index if not exists idx_snapshots_date on snapshots (date desc);
 create index if not exists idx_stocks_symbol on stocks (symbol);
+create index if not exists idx_currency_assets_type on currency_assets (asset_type);
 
 -- ============================================================
 -- ROW LEVEL SECURITY (disable for single-user, no-auth setup)
@@ -75,3 +91,4 @@ create index if not exists idx_stocks_symbol on stocks (symbol);
 alter table stocks disable row level security;
 alter table deposits disable row level security;
 alter table snapshots disable row level security;
+alter table currency_assets disable row level security;

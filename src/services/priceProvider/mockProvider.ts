@@ -21,6 +21,9 @@ const MOCK_PRICES: Record<string, { price: number; change: number; changePercent
   VESTL: { price: 67.4, change: 1.2, changePercent: 1.81 },
   KOZAL: { price: 1832.0, change: 22.5, changePercent: 1.24 },
   PGSUS: { price: 1120.0, change: -12.5, changePercent: -1.1 },
+  'USDTRY=X': { price: 39.15, change: 0.08, changePercent: 0.2 },
+  'EURTRY=X': { price: 42.45, change: -0.11, changePercent: -0.26 },
+  'XAUTRY=X': { price: 4285.0, change: 18.3, changePercent: 0.43 },
 };
 
 const DEFAULT_PRICE = { price: 100.0, change: 0, changePercent: 0 };

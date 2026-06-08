@@ -13,8 +13,17 @@ interface PriceResult {
   updatedAt: string;
 }
 
+function toYahooSymbol(symbol: string): string {
+  const upper = symbol.toUpperCase();
+  if (upper.includes('=') || upper.includes('^') || upper.includes('.') || upper.includes('-')) {
+    return upper;
+  }
+  return `${upper}.IS`;
+}
+
 async function fetchYahooPrice(symbol: string): Promise<PriceResult | null> {
-  const yahooSymbol = `${symbol.toUpperCase()}.IS`;
+  const normalized = symbol.toUpperCase();
+  const yahooSymbol = toYahooSymbol(normalized);
   const url = `https://query2.finance.yahoo.com/v8/finance/chart/${yahooSymbol}?interval=1d&range=1d&includePrePost=false`;
 
   const resp = await fetch(url, {
@@ -33,7 +42,7 @@ async function fetchYahooPrice(symbol: string): Promise<PriceResult | null> {
   const dailyChangePercent = prevClose > 0 ? (dailyChange / prevClose) * 100 : 0;
 
   return {
-    symbol: symbol.toUpperCase(),
+    symbol: normalized,
     price,
     dailyChange,
     dailyChangePercent,

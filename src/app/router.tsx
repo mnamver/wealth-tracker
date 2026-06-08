@@ -6,6 +6,7 @@ const DashboardPage = lazy(() => import('../features/dashboard'));
 const StocksPage = lazy(() => import('../features/stocks'));
 const DepositsPage = lazy(() => import('../features/deposits'));
 const FundsPage = lazy(() => import('../features/funds'));
+const CurrencyPage = lazy(() => import('../features/currency'));
 
 function PageLoader() {
   return (
@@ -49,6 +50,14 @@ const router = createBrowserRouter([
         element: (
           <Suspense fallback={<PageLoader />}>
             <FundsPage />
+          </Suspense>
+        ),
+      },
+      {
+        path: 'currency',
+        element: (
+          <Suspense fallback={<PageLoader />}>
+            <CurrencyPage />
           </Suspense>
         ),
       },

@@ -7,9 +7,10 @@ interface PortfolioDistributionChartProps {
   stocksTotal: number;
   depositsTotal: number;
   fundsTotal: number;
+  currencyTotal: number;
 }
 
-const COLORS = ['#3b82f6', '#10b981', '#8b5cf6'];
+const COLORS = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b'];
 
 interface CustomTooltipProps {
   active?: boolean;
@@ -35,6 +36,7 @@ export function PortfolioDistributionChart({
   stocksTotal,
   depositsTotal,
   fundsTotal,
+  currencyTotal,
 }: PortfolioDistributionChartProps) {
   const data = useMemo(
     () =>
@@ -42,8 +44,9 @@ export function PortfolioDistributionChart({
         { name: 'Hisse Senetleri', value: stocksTotal },
         { name: 'Faiz / Mevduat', value: depositsTotal },
         { name: 'Yatırım Fonları', value: fundsTotal },
+        { name: 'Döviz / Altın', value: currencyTotal },
       ].filter((d) => d.value > 0),
-    [stocksTotal, depositsTotal, fundsTotal],
+    [stocksTotal, depositsTotal, fundsTotal, currencyTotal],
   );
 
   const hasData = data.length > 0;

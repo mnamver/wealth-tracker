@@ -3,10 +3,12 @@ import { useCallback } from 'react';
 import { stocksService } from '../../../services/stocksService';
 import { depositsService } from '../../../services/depositsService';
 import { fundsService } from '../../../services/fundsService';
+import { currencyService } from '../../../services/currencyService';
 import { snapshotsService } from '../../../services/snapshotsService';
 import { priceProvider } from '../../../services/priceProvider';
 import { enrichDeposit, calculateTotalDepositsValue } from '../../../utils/depositCalculations';
 import { calculatePortfolioShares } from '../../../utils/calculations';
+import { getPriceSymbolByType } from '../../currency/constants';
 import type { StockWithPrice } from '../../../types';
 
 export function useDashboard() {
@@ -27,12 +29,19 @@ export function useDashboard() {
     queryFn: fundsService.getAll,
   });
 
+  const currencyQuery = useQuery({
+    queryKey: ['currency-assets'],
+    queryFn: currencyService.getAll,
+  });
+
   const pricesQuery = useQuery({
-    queryKey: ['prices', stocksQuery.data?.map((s) => s.symbol)],
+    queryKey: ['prices', stocksQuery.data?.map((s) => s.symbol), currencyQuery.data?.map((c) => getPriceSymbolByType(c.asset_type))],
     queryFn: async () => {
-      const symbols = stocksQuery.data?.map((s) => s.symbol) ?? [];
-      if (symbols.length === 0) return new Map();
-      return priceProvider.getPrices(symbols);
+      const stockSymbols = stocksQuery.data?.map((s) => s.symbol) ?? [];
+      const currencySymbols = (currencyQuery.data ?? []).map((c) => getPriceSymbolByType(c.asset_type));
+      const allSymbols = [...stockSymbols, ...currencySymbols];
+      if (allSymbols.length === 0) return new Map();
+      return priceProvider.getPrices(allSymbols);
     },
     enabled: !!stocksQuery.data,
     staleTime: 30_000,
@@ -67,13 +76,29 @@ export function useDashboard() {
 
   const enrichedDeposits = (depositsQuery.data ?? []).map(enrichDeposit);
 
+  const currencyTotal = (() => {
+    const usdTry = pricesQuery.data?.get('USDTRY=X')?.price ?? 0;
+    return (currencyQuery.data ?? []).reduce((sum, asset) => {
+      const priceSymbol = getPriceSymbolByType(asset.asset_type);
+      const priceData = pricesQuery.data?.get(priceSymbol);
+      let price = priceData?.price ?? 0;
+
+      if (asset.asset_type === 'GOLD' && price > 0 && usdTry > 0) {
+        const troyOunceToGram = 31.1034768;
+        price = (price * usdTry) / troyOunceToGram;
+      }
+
+      return sum + asset.quantity * price;
+    }, 0);
+  })();
+
   const stocksTotal = enrichedStocks.reduce((s, x) => s + x.currentValue, 0);
   const depositsTotal = calculateTotalDepositsValue(depositsQuery.data ?? []);
   const fundsTotal = (fundsQuery.data ?? []).reduce(
     (s, f) => s + f.quantity * f.unit_price,
     0,
   );
-  const totalNetWorth = stocksTotal + depositsTotal + fundsTotal;
+  const totalNetWorth = stocksTotal + depositsTotal + fundsTotal + currencyTotal;
 
   const snapshots = snapshotsQuery.data ?? [];
   const previousTotal =
@@ -94,7 +119,7 @@ export function useDashboard() {
   }, [queryClient, totalNetWorth, stocksTotal, depositsTotal, fundsTotal, saveSnapshotMutation]);
 
   const isLoading =
-    stocksQuery.isLoading || depositsQuery.isLoading || fundsQuery.isLoading;
+    stocksQuery.isLoading || depositsQuery.isLoading || fundsQuery.isLoading || currencyQuery.isLoading;
   const isRefreshing = pricesQuery.isFetching;
 
   return {
@@ -103,6 +128,7 @@ export function useDashboard() {
     stocksTotal,
     depositsTotal,
     fundsTotal,
+    currencyTotal,
     totalNetWorth,
     todayChange,
     todayChangePercent,

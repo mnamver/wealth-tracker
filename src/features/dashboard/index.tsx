@@ -25,6 +25,7 @@ function DashboardContent() {
     stocksTotal,
     depositsTotal,
     fundsTotal,
+    currencyTotal,
     totalNetWorth,
     todayChange,
     todayChangePercent,
@@ -50,6 +51,7 @@ function DashboardContent() {
         stocksTotal={stocksTotal}
         depositsTotal={depositsTotal}
         fundsTotal={fundsTotal}
+        currencyTotal={currencyTotal}
         totalNetWorth={totalNetWorth}
       />
 
@@ -58,6 +60,7 @@ function DashboardContent() {
           stocksTotal={stocksTotal}
           depositsTotal={depositsTotal}
           fundsTotal={fundsTotal}
+          currencyTotal={currencyTotal}
         />
         <WealthHistoryChart snapshots={snapshots} />
       </div>
