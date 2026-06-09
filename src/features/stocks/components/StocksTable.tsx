@@ -126,7 +126,6 @@ export function StocksTable({
               sortField={sortField}
               sortDirection={sortDirection}
               onSort={onSort}
-              className="hidden lg:table-cell"
             />
             <SortableHeader
               field="currentValue"
@@ -175,7 +174,7 @@ export function StocksTable({
                   <span className="text-xs text-muted-foreground">—</span>
                 )}
               </td>
-              <td className="px-4 py-3.5 hidden lg:table-cell">
+              <td className="px-4 py-3.5">
                 {stock.costBasis > 0 ? (
                   <div className="flex flex-col">
                     <span className={cn('text-sm font-medium', stock.profitLoss >= 0 ? 'text-emerald-500' : 'text-red-500')}>
@@ -224,9 +223,10 @@ export function StocksTable({
               <tr className="border-t-2 border-border bg-muted/20">
                 <td className="px-4 py-3 text-sm font-semibold">Toplam</td>
                 <td className="px-4 py-3 hidden sm:table-cell" />
+                <td className="px-4 py-3" />
                 <td className="px-4 py-3 hidden sm:table-cell" />
                 <td className="px-4 py-3 hidden sm:table-cell" />
-                <td className="px-4 py-3 hidden lg:table-cell">
+                <td className="px-4 py-3">
                   {totalCost > 0 && (
                     <div className="flex flex-col">
                       <span className={cn('text-sm font-bold', totalPnl >= 0 ? 'text-emerald-500' : 'text-red-500')}>
