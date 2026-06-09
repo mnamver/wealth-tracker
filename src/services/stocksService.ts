@@ -18,6 +18,7 @@ export const stocksService = {
       .insert({
         symbol: values.symbol.toUpperCase().trim(),
         quantity: values.quantity,
+        avg_cost: values.avg_cost ?? null,
       })
       .select()
       .single();
@@ -32,6 +33,7 @@ export const stocksService = {
       .update({
         ...(values.symbol && { symbol: values.symbol.toUpperCase().trim() }),
         ...(values.quantity !== undefined && { quantity: values.quantity }),
+        ...('avg_cost' in values && { avg_cost: values.avg_cost ?? null }),
       })
       .eq('id', id)
       .select()

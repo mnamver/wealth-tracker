@@ -20,6 +20,7 @@ import type { StockFormValues } from '../../../types';
 const schema = z.object({
   symbol: z.string().min(1, 'Hisse kodu zorunlu').max(10, 'En fazla 10 karakter'),
   quantity: z.coerce.number().positive('Adet pozitif olmalı'),
+  avg_cost: z.coerce.number().positive('Maliyet pozitif olmalı').optional().or(z.literal('')),
 });
 
 interface AddStockFormProps {
@@ -43,6 +44,7 @@ export function AddStockForm({ onSubmit, isLoading }: AddStockFormProps) {
     await onSubmit({
       symbol: values.symbol.toUpperCase().trim(),
       quantity: Number(values.quantity),
+      avg_cost: values.avg_cost ? Number(values.avg_cost) : null,
     });
     reset();
     setOpen(false);
@@ -85,6 +87,23 @@ export function AddStockForm({ onSubmit, isLoading }: AddStockFormProps) {
             />
             {errors.quantity && (
               <p className="text-xs text-destructive">{errors.quantity.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="avg_cost">
+              Ortalama Alış Fiyatı (₺)
+              <span className="ml-1 text-xs text-muted-foreground">— isteğe bağlı</span>
+            </Label>
+            <Input
+              id="avg_cost"
+              type="number"
+              step="0.0001"
+              placeholder="250.50"
+              {...register('avg_cost')}
+            />
+            {errors.avg_cost && (
+              <p className="text-xs text-destructive">{errors.avg_cost.message}</p>
             )}
           </div>
 

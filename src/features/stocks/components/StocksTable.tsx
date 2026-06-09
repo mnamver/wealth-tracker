@@ -1,6 +1,5 @@
 import { ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
-import { Badge } from '../../../components/ui/badge';
 import { EditQuantityDialog } from './EditQuantityDialog';
 import { formatCurrency, formatNumber, formatPercent } from '../../../utils/formatters';
 import { cn } from '../../../lib/utils';
@@ -12,7 +11,7 @@ interface StocksTableProps {
   sortField: SortField;
   sortDirection: SortDirection;
   onSort: (field: SortField) => void;
-  onUpdateQuantity: (id: string, quantity: number) => Promise<unknown>;
+  onUpdate: (id: string, values: { quantity: number; avg_cost: number | null }) => Promise<unknown>;
   onDelete: (id: string) => void;
   isUpdating: boolean;
   isDeleting: boolean;
@@ -67,7 +66,7 @@ export function StocksTable({
   sortField,
   sortDirection,
   onSort,
-  onUpdateQuantity,
+  onUpdate,
   onDelete,
   isUpdating,
   isDeleting,
@@ -111,23 +110,31 @@ export function StocksTable({
               onSort={onSort}
             />
             <SortableHeader
+              field="portfolioShare"
+              label="Pay %"
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={onSort}
+              className="hidden sm:table-cell"
+            />
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">
+              Günlük K/Z (%)
+            </th>
+            <SortableHeader
+              field="profitLoss"
+              label="Toplam K/Z"
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={onSort}
+              className="hidden lg:table-cell"
+            />
+            <SortableHeader
               field="currentValue"
               label="Toplam Değer"
               sortField={sortField}
               sortDirection={sortDirection}
               onSort={onSort}
             />
-            <SortableHeader
-              field="portfolioShare"
-              label="Pay %"
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={onSort}
-              className="hidden md:table-cell"
-            />
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">
-              Günlük
-            </th>
             <th className="w-20" />
           </tr>
         </thead>
@@ -146,10 +153,7 @@ export function StocksTable({
               <td className="px-4 py-3.5 text-sm font-mono">
                 {stock.currentPrice > 0 ? formatCurrency(stock.currentPrice) : '—'}
               </td>
-              <td className="px-4 py-3.5 text-sm font-medium">
-                {stock.currentValue > 0 ? formatCurrency(stock.currentValue) : '—'}
-              </td>
-              <td className="px-4 py-3.5 hidden md:table-cell">
+              <td className="px-4 py-3.5 hidden sm:table-cell">
                 <div className="flex items-center gap-2">
                   <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
                     <div
@@ -164,22 +168,37 @@ export function StocksTable({
               </td>
               <td className="px-4 py-3.5 hidden sm:table-cell">
                 {stock.dailyChangePercent !== undefined ? (
-                  <Badge
-                    variant={stock.dailyChangePercent >= 0 ? 'success' : 'danger'}
-                    className="text-xs"
-                  >
-                    {formatPercent(stock.dailyChangePercent)}
-                  </Badge>
+                  <span className={cn('text-sm font-medium', stock.dailyChangePercent >= 0 ? 'text-emerald-500' : 'text-red-500')}>
+                    {stock.dailyChangePercent >= 0 ? '+' : ''}{formatPercent(stock.dailyChangePercent)}
+                  </span>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>
                 )}
+              </td>
+              <td className="px-4 py-3.5 hidden lg:table-cell">
+                {stock.costBasis > 0 ? (
+                  <div className="flex flex-col">
+                    <span className={cn('text-sm font-medium', stock.profitLoss >= 0 ? 'text-emerald-500' : 'text-red-500')}>
+                      {stock.profitLoss >= 0 ? '+' : ''}{formatCurrency(stock.profitLoss)}
+                    </span>
+                    <span className={cn('text-xs', stock.profitLossPercent >= 0 ? 'text-emerald-500' : 'text-red-500')}>
+                      {formatPercent(stock.profitLossPercent)}
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </td>
+              <td className="px-4 py-3.5 text-sm font-medium">
+                {stock.currentValue > 0 ? formatCurrency(stock.currentValue) : '—'}
               </td>
               <td className="px-4 py-3.5">
                 <div className="flex items-center gap-1">
                   <EditQuantityDialog
                     symbol={stock.symbol}
                     currentQuantity={stock.quantity}
-                    onSubmit={(qty) => onUpdateQuantity(stock.id, qty)}
+                    currentAvgCost={stock.avg_cost}
+                    onSubmit={(values) => onUpdate(stock.id, values)}
                     isLoading={isUpdating}
                   />
                   <Button
@@ -196,18 +215,35 @@ export function StocksTable({
             </tr>
           ))}
         </tbody>
-        {totalValue > 0 && (
-          <tfoot>
-            <tr className="border-t-2 border-border bg-muted/20">
-              <td className="px-4 py-3 text-sm font-semibold" colSpan={2}>
-                Toplam
-              </td>
-              <td className="px-4 py-3 hidden sm:table-cell" />
-              <td className="px-4 py-3 text-sm font-bold">{formatCurrency(totalValue)}</td>
-              <td colSpan={3} />
-            </tr>
-          </tfoot>
-        )}
+        {totalValue > 0 && (() => {
+          const totalCost = stocks.reduce((s, x) => s + x.costBasis, 0);
+          const totalPnl = stocks.reduce((s, x) => s + x.profitLoss, 0);
+          const totalPnlPct = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0;
+          return (
+            <tfoot>
+              <tr className="border-t-2 border-border bg-muted/20">
+                <td className="px-4 py-3 text-sm font-semibold">Toplam</td>
+                <td className="px-4 py-3 hidden sm:table-cell" />
+                <td className="px-4 py-3 hidden sm:table-cell" />
+                <td className="px-4 py-3 hidden sm:table-cell" />
+                <td className="px-4 py-3 hidden lg:table-cell">
+                  {totalCost > 0 && (
+                    <div className="flex flex-col">
+                      <span className={cn('text-sm font-bold', totalPnl >= 0 ? 'text-emerald-500' : 'text-red-500')}>
+                        {totalPnl >= 0 ? '+' : ''}{formatCurrency(totalPnl)}
+                      </span>
+                      <span className={cn('text-xs', totalPnlPct >= 0 ? 'text-emerald-500' : 'text-red-500')}>
+                        {formatPercent(totalPnlPct)}
+                      </span>
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-sm font-bold">{formatCurrency(totalValue)}</td>
+                <td />
+              </tr>
+            </tfoot>
+          );
+        })()}
       </table>
     </div>
   );

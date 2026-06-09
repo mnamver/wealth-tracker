@@ -18,20 +18,23 @@ import {
 
 const schema = z.object({
   quantity: z.coerce.number().positive('Adet pozitif olmalı'),
+  avg_cost: z.coerce.number().positive('Maliyet pozitif olmalı').optional().or(z.literal('')),
 });
 
-type FormValues = { quantity: number };
+type FormValues = { quantity: number; avg_cost?: number | '' };
 
 interface EditQuantityDialogProps {
   symbol: string;
   currentQuantity: number;
-  onSubmit: (quantity: number) => Promise<unknown>;
+  currentAvgCost?: number | null;
+  onSubmit: (values: { quantity: number; avg_cost: number | null }) => Promise<unknown>;
   isLoading: boolean;
 }
 
 export function EditQuantityDialog({
   symbol,
   currentQuantity,
+  currentAvgCost,
   onSubmit,
   isLoading,
 }: EditQuantityDialogProps) {
@@ -43,11 +46,14 @@ export function EditQuantityDialog({
     formState: { errors },
   } = useForm<FormValues>({
     resolver: zodResolver(schema) as Resolver<FormValues>,
-    defaultValues: { quantity: currentQuantity },
+    defaultValues: { quantity: currentQuantity, avg_cost: currentAvgCost ?? '' },
   });
 
   async function onValid(values: FormValues) {
-    await onSubmit(Number(values.quantity));
+    await onSubmit({
+      quantity: Number(values.quantity),
+      avg_cost: values.avg_cost ? Number(values.avg_cost) : null,
+    });
     setOpen(false);
   }
 
@@ -64,7 +70,7 @@ export function EditQuantityDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[340px]">
         <DialogHeader>
-          <DialogTitle>{symbol} — Adet Güncelle</DialogTitle>
+          <DialogTitle>{symbol} — Düzenle</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onValid)} className="space-y-4 mt-2">
           <div className="space-y-2">
@@ -78,6 +84,22 @@ export function EditQuantityDialog({
             />
             {errors.quantity && (
               <p className="text-xs text-destructive">{errors.quantity.message}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="avg_cost">
+              Ortalama Alış Fiyatı (₺)
+              <span className="ml-1 text-xs text-muted-foreground">— isteğe bağlı</span>
+            </Label>
+            <Input
+              id="avg_cost"
+              type="number"
+              step="0.0001"
+              placeholder="250.50"
+              {...register('avg_cost')}
+            />
+            {errors.avg_cost && (
+              <p className="text-xs text-destructive">{errors.avg_cost.message}</p>
             )}
           </div>
           <DialogFooter className="gap-2">

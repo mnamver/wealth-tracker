@@ -68,7 +68,7 @@ export default function StocksPage() {
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
-            onUpdateQuantity={(id, qty) => updateStock({ id, values: { quantity: qty } })}
+            onUpdate={(id, values) => updateStock({ id, values })}
             onDelete={deleteStock}
             isUpdating={isUpdating}
             isDeleting={isDeleting}

@@ -62,10 +62,17 @@ export function useDashboard() {
     const raw = stocksQuery.data.map((stock) => {
       const priceData = pricesQuery.data.get(stock.symbol);
       const currentPrice = priceData?.price ?? 0;
+      const currentValue = stock.quantity * currentPrice;
+      const costBasis = stock.avg_cost != null ? stock.avg_cost * stock.quantity : 0;
+      const profitLoss = costBasis > 0 ? currentValue - costBasis : 0;
+      const profitLossPercent = costBasis > 0 ? (profitLoss / costBasis) * 100 : 0;
       return {
         ...stock,
         currentPrice,
-        currentValue: stock.quantity * currentPrice,
+        currentValue,
+        costBasis,
+        profitLoss,
+        profitLossPercent,
         portfolioShare: 0,
         dailyChange: priceData?.dailyChange,
         dailyChangePercent: priceData?.dailyChangePercent,
