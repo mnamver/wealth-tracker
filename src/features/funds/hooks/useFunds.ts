@@ -1,22 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import { fundsService } from '../../../services/fundsService';
-import { supabase } from '../../../lib/supabase';
 import type { FundFormValues, FundWithValue } from '../../../types';
-
-interface LivePrice {
-  price: number;
-  dailyChangePercent: number | null;
-  updatedAt: string | null;
-}
-
-async function fetchLivePrices(codes: string[]): Promise<Record<string, LivePrice>> {
-  const { data, error } = await supabase.functions.invoke('get-fund-prices', {
-    body: { codes },
-  });
-  if (error) throw error;
-  return (data as { prices: Record<string, LivePrice> }).prices ?? {};
-}
 
 export function useFunds() {
   const queryClient = useQueryClient();
@@ -30,7 +15,7 @@ export function useFunds() {
 
   const pricesQuery = useQuery({
     queryKey: ['fund-prices', codes],
-    queryFn: () => fetchLivePrices(codes),
+    queryFn: () => fundsService.getLivePrices(codes),
     enabled: codes.length > 0,
     staleTime: 30_000,
   });

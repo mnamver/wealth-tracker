@@ -51,6 +51,8 @@ create table if not exists snapshots (
   total_net_worth numeric(18, 2) not null,
   stocks_value numeric(18, 2) not null default 0,
   deposits_value numeric(18, 2) not null default 0,
+  funds_value numeric(18, 2) not null default 0,
+  currency_value numeric(18, 2) not null default 0,
   created_at timestamptz not null default now(),
   constraint unique_date unique (date)
 );

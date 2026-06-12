@@ -1,6 +1,12 @@
 import { supabase } from '../lib/supabase';
 import type { Fund, FundFormValues, UpdatePriceValues } from '../types';
 
+export interface FundLivePrice {
+  price: number;
+  dailyChangePercent: number | null;
+  updatedAt: string | null;
+}
+
 export const fundsService = {
   async getAll(): Promise<Fund[]> {
     const { data, error } = await supabase
@@ -10,6 +16,15 @@ export const fundsService = {
 
     if (error) throw error;
     return data ?? [];
+  },
+
+  async getLivePrices(codes: string[]): Promise<Record<string, FundLivePrice>> {
+    if (codes.length === 0) return {};
+    const { data, error } = await supabase.functions.invoke('get-fund-prices', {
+      body: { codes },
+    });
+    if (error) throw error;
+    return (data as { prices: Record<string, FundLivePrice> }).prices ?? {};
   },
 
   async create(values: FundFormValues): Promise<Fund> {

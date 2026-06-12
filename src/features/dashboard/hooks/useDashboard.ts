@@ -29,6 +29,15 @@ export function useDashboard() {
     queryFn: fundsService.getAll,
   });
 
+  const fundCodes = fundsQuery.data?.map((f) => f.fund_code) ?? [];
+
+  const fundPricesQuery = useQuery({
+    queryKey: ['fund-prices', fundCodes],
+    queryFn: () => fundsService.getLivePrices(fundCodes),
+    enabled: fundCodes.length > 0,
+    staleTime: 30_000,
+  });
+
   const currencyQuery = useQuery({
     queryKey: ['currency-assets'],
     queryFn: currencyService.getAll,
@@ -102,32 +111,42 @@ export function useDashboard() {
   const stocksTotal = enrichedStocks.reduce((s, x) => s + x.currentValue, 0);
   const depositsTotal = calculateTotalDepositsValue(depositsQuery.data ?? []);
   const fundsTotal = (fundsQuery.data ?? []).reduce(
-    (s, f) => s + f.quantity * f.unit_price,
+    (s, f) => s + f.quantity * (fundPricesQuery.data?.[f.fund_code]?.price ?? f.unit_price),
     0,
   );
   const totalNetWorth = stocksTotal + depositsTotal + fundsTotal + currencyTotal;
 
   const snapshots = snapshotsQuery.data ?? [];
+  const today = new Date().toISOString().split('T')[0];
   const previousTotal =
-    snapshots.length >= 2 ? snapshots[snapshots.length - 2].total_net_worth : 0;
+    [...snapshots].reverse().find((s) => s.date < today)?.total_net_worth ?? 0;
   const todayChange = totalNetWorth - previousTotal;
   const todayChangePercent = previousTotal > 0 ? (todayChange / previousTotal) * 100 : 0;
 
   const refreshPrices = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ['prices'] });
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['prices'] }),
+      queryClient.invalidateQueries({ queryKey: ['fund-prices'] }),
+    ]);
     if (totalNetWorth > 0) {
       saveSnapshotMutation.mutate({
         total_net_worth: totalNetWorth,
         stocks_value: stocksTotal,
         deposits_value: depositsTotal,
         funds_value: fundsTotal,
+        currency_value: currencyTotal,
       });
     }
-  }, [queryClient, totalNetWorth, stocksTotal, depositsTotal, fundsTotal, saveSnapshotMutation]);
+  }, [queryClient, totalNetWorth, stocksTotal, depositsTotal, fundsTotal, currencyTotal, saveSnapshotMutation]);
 
   const isLoading =
-    stocksQuery.isLoading || depositsQuery.isLoading || fundsQuery.isLoading || currencyQuery.isLoading;
-  const isRefreshing = pricesQuery.isFetching;
+    stocksQuery.isLoading ||
+    depositsQuery.isLoading ||
+    fundsQuery.isLoading ||
+    currencyQuery.isLoading ||
+    pricesQuery.isLoading ||
+    (fundCodes.length > 0 && fundPricesQuery.isLoading);
+  const isRefreshing = pricesQuery.isFetching || fundPricesQuery.isFetching;
 
   return {
     enrichedStocks,
