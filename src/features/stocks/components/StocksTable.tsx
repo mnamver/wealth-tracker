@@ -155,7 +155,7 @@ export function StocksTable({
               <td className="px-4 py-3.5 hidden sm:table-cell">
                 {stock.dailyChangePercent !== undefined ? (
                   <span className={cn('text-sm font-medium', stock.dailyChangePercent >= 0 ? 'text-emerald-500' : 'text-red-500')}>
-                    {stock.dailyChangePercent >= 0 ? '+' : ''}{formatPercent(stock.dailyChangePercent)}
+                    {formatPercent(stock.dailyChangePercent)}
                   </span>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>

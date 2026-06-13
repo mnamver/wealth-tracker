@@ -52,8 +52,8 @@ export function FundsTable({
           <tr className="border-b border-border">
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Fon Kodu</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Adet</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Günlük</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Kar/Zarar</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Günlük K/Z (%)</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Toplam K/Z</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Pay %</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Güncel Değer</th>
             <th className="w-28" />
