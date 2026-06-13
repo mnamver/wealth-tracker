@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useCallback } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { stocksService } from '../../../services/stocksService';
 import { depositsService } from '../../../services/depositsService';
 import { fundsService } from '../../../services/fundsService';
@@ -123,22 +123,6 @@ export function useDashboard() {
   const todayChange = totalNetWorth - previousTotal;
   const todayChangePercent = previousTotal > 0 ? (todayChange / previousTotal) * 100 : 0;
 
-  const refreshPrices = useCallback(async () => {
-    await Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['prices'] }),
-      queryClient.invalidateQueries({ queryKey: ['fund-prices'] }),
-    ]);
-    if (totalNetWorth > 0) {
-      saveSnapshotMutation.mutate({
-        total_net_worth: totalNetWorth,
-        stocks_value: stocksTotal,
-        deposits_value: depositsTotal,
-        funds_value: fundsTotal,
-        currency_value: currencyTotal,
-      });
-    }
-  }, [queryClient, totalNetWorth, stocksTotal, depositsTotal, fundsTotal, currencyTotal, saveSnapshotMutation]);
-
   const isLoading =
     stocksQuery.isLoading ||
     depositsQuery.isLoading ||
@@ -147,6 +131,29 @@ export function useDashboard() {
     pricesQuery.isLoading ||
     (fundCodes.length > 0 && fundPricesQuery.isLoading);
   const isRefreshing = pricesQuery.isFetching || fundPricesQuery.isFetching;
+
+  const refreshPrices = useCallback(async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['prices'] }),
+      queryClient.invalidateQueries({ queryKey: ['fund-prices'] }),
+    ]);
+  }, [queryClient]);
+
+  // Fiyat yüklemesi bitince snapshot kaydet (yeni değerlerle)
+  const wasRefreshing = useRef(false);
+  useEffect(() => {
+    if (wasRefreshing.current && !isRefreshing && totalNetWorth > 0) {
+      saveSnapshotMutation.mutate({
+        total_net_worth: totalNetWorth,
+        stocks_value: stocksTotal,
+        deposits_value: depositsTotal,
+        funds_value: fundsTotal,
+        currency_value: currencyTotal,
+      });
+    }
+    wasRefreshing.current = isRefreshing;
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRefreshing]);
 
   return {
     enrichedStocks,
