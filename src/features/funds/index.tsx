@@ -20,14 +20,19 @@ export default function FundsPage() {
   const {
     funds,
     totalValue,
+    totalCost,
+    totalProfitLoss,
+    totalProfitLossPercent,
     addFund,
     updateQuantity,
+    updateCostPerUnit,
     deleteFund,
     refreshPrices,
     isLoading,
     isRefreshing,
     isAdding,
     isUpdatingQuantity,
+    isUpdatingCostPerUnit,
     isDeleting,
   } = useFunds();
 
@@ -55,7 +60,7 @@ export default function FundsPage() {
       </div>
 
       {funds.length > 0 && (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           <div className="rounded-xl border border-border bg-card p-4">
             <p className="text-xs text-muted-foreground">Toplam Fon</p>
             <p className="text-2xl font-bold mt-1">{funds.length}</p>
@@ -64,11 +69,41 @@ export default function FundsPage() {
             <p className="text-xs text-muted-foreground">Toplam Değer</p>
             <p className="text-lg font-bold mt-1">{formatCurrency(totalValue)}</p>
           </div>
-          <div className="rounded-xl border border-border bg-card p-4 col-span-2 sm:col-span-1">
-            <p className="text-xs text-muted-foreground">Fiyat Kaynağı</p>
-            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-              Fiyatlar Fonoloji API'den otomatik çekilir. Kalem ikonu ile manuel de güncelleyebilirsin.
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-xs text-muted-foreground">Toplam Maliyet</p>
+            <p className="text-lg font-bold mt-1">
+              {totalCost > 0 ? formatCurrency(totalCost) : (
+                <span className="text-sm text-muted-foreground">Girilmedi</span>
+              )}
             </p>
+          </div>
+          <div className={cn(
+            'rounded-xl border bg-card p-4',
+            totalProfitLoss === null && 'border-border',
+            totalProfitLoss !== null && totalProfitLoss >= 0 && 'border-green-500/30 bg-green-500/5',
+            totalProfitLoss !== null && totalProfitLoss < 0 && 'border-red-500/30 bg-red-500/5',
+          )}>
+            <p className="text-xs text-muted-foreground">Toplam Kar/Zarar</p>
+            {totalProfitLoss !== null ? (
+              <div className="mt-1">
+                <p className={cn(
+                  'text-lg font-bold',
+                  totalProfitLoss >= 0 ? 'text-green-600' : 'text-red-500',
+                )}>
+                  {totalProfitLoss >= 0 ? '+' : ''}{formatCurrency(totalProfitLoss)}
+                </p>
+                {totalProfitLossPercent !== null && (
+                  <p className={cn(
+                    'text-xs font-medium',
+                    totalProfitLossPercent >= 0 ? 'text-green-600' : 'text-red-500',
+                  )}>
+                    {totalProfitLossPercent >= 0 ? '+' : ''}{totalProfitLossPercent.toFixed(2)}%
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground mt-1">Maliyet girilmedi</p>
+            )}
           </div>
         </div>
       )}
@@ -81,9 +116,14 @@ export default function FundsPage() {
           <FundsTable
             funds={funds}
             totalValue={totalValue}
+            totalCost={totalCost}
+            totalProfitLoss={totalProfitLoss}
+            totalProfitLossPercent={totalProfitLossPercent}
             onUpdateQuantity={updateQuantity}
+            onUpdateCostPerUnit={updateCostPerUnit}
             onDelete={deleteFund}
             isUpdatingQuantity={isUpdatingQuantity}
+            isUpdatingCostPerUnit={isUpdatingCostPerUnit}
             isDeleting={isDeleting}
           />
         </CardContent>

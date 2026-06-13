@@ -24,3 +24,10 @@ alter table funds disable row level security;
 -- Add funds_value column to snapshots (with default 0 for existing rows)
 alter table snapshots
   add column if not exists funds_value numeric(18, 2) not null default 0;
+
+-- Add cost_per_unit column to funds (run this if the table already exists)
+alter table funds
+  add column if not exists cost_per_unit numeric(18, 6) not null default 0 check (cost_per_unit >= 0);
+
+-- If you already ran the total_cost migration, rename it:
+-- alter table funds rename column total_cost to cost_per_unit;

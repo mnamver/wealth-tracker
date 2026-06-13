@@ -2,25 +2,36 @@ import { Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
 import { EditFundQuantityDialog } from './EditFundQuantityDialog';
+import { EditTotalCostDialog } from './EditTotalCostDialog';
 import { formatCurrency, formatNumber, formatPercent } from '../../../utils/formatters';
 import { cn } from '../../../lib/utils';
-import type { FundWithValue } from '../../../types';
+import type { FundWithValue, UpdateCostPerUnitValues } from '../../../types';
 
 interface FundsTableProps {
   funds: FundWithValue[];
   totalValue: number;
+  totalCost: number;
+  totalProfitLoss: number | null;
+  totalProfitLossPercent: number | null;
   onUpdateQuantity: (id: string, quantity: number) => Promise<unknown>;
+  onUpdateCostPerUnit: (id: string, values: UpdateCostPerUnitValues) => Promise<unknown>;
   onDelete: (id: string) => void;
   isUpdatingQuantity: boolean;
+  isUpdatingCostPerUnit: boolean;
   isDeleting: boolean;
 }
 
 export function FundsTable({
   funds,
   totalValue,
+  totalCost,
+  totalProfitLoss,
+  totalProfitLossPercent,
   onUpdateQuantity,
+  onUpdateCostPerUnit,
   onDelete,
   isUpdatingQuantity,
+  isUpdatingCostPerUnit,
   isDeleting,
 }: FundsTableProps) {
   if (funds.length === 0) {
@@ -43,9 +54,11 @@ export function FundsTable({
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Adet</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Birim Pay</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Güncel Değer</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden lg:table-cell">Toplam Maliyet</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Kar/Zarar</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Pay %</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Günlük</th>
-            <th className="w-24" />
+            <th className="w-28" />
           </tr>
         </thead>
         <tbody>
@@ -77,6 +90,34 @@ export function FundsTable({
               </td>
               <td className="px-4 py-3.5 text-sm font-medium">
                 {fund.currentValue > 0 ? formatCurrency(fund.currentValue) : '—'}
+              </td>
+              <td className="px-4 py-3.5 hidden lg:table-cell">
+                {fund.totalCost > 0 ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm">{formatCurrency(fund.totalCost)}</span>
+                    <span className="text-xs text-muted-foreground font-mono">
+                      ₺{fund.cost_per_unit.toFixed(6)}/pay
+                    </span>
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
+              </td>
+              <td className="px-4 py-3.5 hidden md:table-cell">
+                {fund.profitLoss !== null ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className={cn('text-sm font-medium', fund.profitLoss >= 0 ? 'text-green-600' : 'text-red-500')}>
+                      {fund.profitLoss >= 0 ? '+' : ''}{formatCurrency(fund.profitLoss)}
+                    </span>
+                    {fund.profitLossPercent !== null && (
+                      <span className={cn('text-xs', fund.profitLossPercent >= 0 ? 'text-green-600' : 'text-red-500')}>
+                        {fund.profitLossPercent >= 0 ? '+' : ''}{fund.profitLossPercent.toFixed(2)}%
+                      </span>
+                    )}
+                  </div>
+                ) : (
+                  <span className="text-xs text-muted-foreground">—</span>
+                )}
               </td>
               <td className="px-4 py-3.5 hidden md:table-cell">
                 <div className="flex items-center gap-2">
@@ -111,6 +152,12 @@ export function FundsTable({
                     onSubmit={(qty) => onUpdateQuantity(fund.id, qty)}
                     isLoading={isUpdatingQuantity}
                   />
+                  <EditTotalCostDialog
+                    fundCode={fund.fund_code}
+                    currentCostPerUnit={fund.cost_per_unit}
+                    onSubmit={(values) => onUpdateCostPerUnit(fund.id, values)}
+                    isLoading={isUpdatingCostPerUnit}
+                  />
                   <Button
                     variant="ghost"
                     size="icon"
@@ -131,6 +178,23 @@ export function FundsTable({
               <td className="px-4 py-3 text-sm font-semibold" colSpan={2}>Toplam</td>
               <td className="px-4 py-3 hidden sm:table-cell" />
               <td className="px-4 py-3 text-sm font-bold">{formatCurrency(totalValue)}</td>
+              <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell">
+                {totalCost > 0 ? formatCurrency(totalCost) : '—'}
+              </td>
+              <td className="px-4 py-3 hidden md:table-cell">
+                {totalProfitLoss !== null ? (
+                  <div className="flex flex-col gap-0.5">
+                    <span className={cn('text-sm font-bold', totalProfitLoss >= 0 ? 'text-green-600' : 'text-red-500')}>
+                      {totalProfitLoss >= 0 ? '+' : ''}{formatCurrency(totalProfitLoss)}
+                    </span>
+                    {totalProfitLossPercent !== null && (
+                      <span className={cn('text-xs font-medium', totalProfitLossPercent >= 0 ? 'text-green-600' : 'text-red-500')}>
+                        {totalProfitLossPercent >= 0 ? '+' : ''}{totalProfitLossPercent.toFixed(2)}%
+                      </span>
+                    )}
+                  </div>
+                ) : '—'}
+              </td>
               <td colSpan={3} />
             </tr>
           </tfoot>

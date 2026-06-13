@@ -21,6 +21,7 @@ const schema = z.object({
   fund_code: z.string().min(1, 'Fon kodu zorunlu').max(10),
   quantity: z.coerce.number().int('Adet tam sayı olmalı').positive('Adet pozitif olmalı'),
   unit_price: z.coerce.number().min(0, 'Birim pay değeri 0 veya üzeri olmalı'),
+  cost_per_unit: z.coerce.number().min(0, 'Birim maliyet 0 veya üzeri olmalı'),
 });
 
 interface AddFundFormProps {
@@ -38,7 +39,7 @@ export function AddFundForm({ onSubmit, isLoading }: AddFundFormProps) {
     formState: { errors },
   } = useForm<FundFormValues>({
     resolver: zodResolver(schema) as Resolver<FundFormValues>,
-    defaultValues: { unit_price: 0 },
+    defaultValues: { unit_price: 0, cost_per_unit: 0 },
   });
 
   async function onValid(values: FundFormValues) {
@@ -46,6 +47,7 @@ export function AddFundForm({ onSubmit, isLoading }: AddFundFormProps) {
       fund_code: values.fund_code.toUpperCase().trim(),
       quantity: Number(values.quantity),
       unit_price: Number(values.unit_price),
+      cost_per_unit: Number(values.cost_per_unit),
     });
     reset();
     setOpen(false);
@@ -94,7 +96,7 @@ export function AddFundForm({ onSubmit, isLoading }: AddFundFormProps) {
           <div className="space-y-2">
             <Label htmlFor="unit_price">
               Birim Pay Değeri (₺)
-              <span className="ml-1 text-xs text-muted-foreground">— TEFAS'tan bakıp gir</span>
+              <span className="ml-1 text-xs text-muted-foreground">— güncel fiyat</span>
             </Label>
             <Input
               id="unit_price"
@@ -105,6 +107,23 @@ export function AddFundForm({ onSubmit, isLoading }: AddFundFormProps) {
             />
             {errors.unit_price && (
               <p className="text-xs text-destructive">{errors.unit_price.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="cost_per_unit">
+              Birim Pay Maliyeti (₺)
+              <span className="ml-1 text-xs text-muted-foreground">— kaça aldın</span>
+            </Label>
+            <Input
+              id="cost_per_unit"
+              type="number"
+              step="0.000001"
+              placeholder="1450.000000"
+              {...register('cost_per_unit')}
+            />
+            {errors.cost_per_unit && (
+              <p className="text-xs text-destructive">{errors.cost_per_unit.message}</p>
             )}
           </div>
 

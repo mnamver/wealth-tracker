@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import { fundsService } from '../../../services/fundsService';
-import type { FundFormValues, FundWithValue } from '../../../types';
+import type { FundFormValues, FundWithValue, UpdateCostPerUnitValues } from '../../../types';
 
 export function useFunds() {
   const queryClient = useQueryClient();
@@ -34,6 +34,12 @@ export function useFunds() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
   });
 
+  const updateCostPerUnitMutation = useMutation({
+    mutationFn: ({ id, values }: { id: string; values: UpdateCostPerUnitValues }) =>
+      fundsService.updateCostPerUnit(id, values),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
+  });
+
   const deleteMutation = useMutation({
     mutationFn: fundsService.delete,
     onMutate: async (id) => {
@@ -58,14 +64,20 @@ export function useFunds() {
     const raw = (fundsQuery.data ?? []).map((f) => {
       const live = pricesQuery.data?.[f.fund_code];
       const currentPrice = live?.price ?? f.unit_price;
+      const currentValue = f.quantity * currentPrice;
+      const totalCost = f.cost_per_unit > 0 ? f.quantity * f.cost_per_unit : 0;
+      const hasCost = totalCost > 0;
       return {
         ...f,
         currentPrice,
-        currentValue: f.quantity * currentPrice,
+        currentValue,
+        totalCost,
         portfolioShare: 0,
         dailyChangePercent: live?.dailyChangePercent ?? null,
         priceUpdatedAt: live?.updatedAt ?? f.price_updated_at,
         isLive: !!live,
+        profitLoss: hasCost ? currentValue - totalCost : null,
+        profitLossPercent: hasCost ? ((currentValue - totalCost) / totalCost) * 100 : null,
       };
     });
     const total = raw.reduce((s, f) => s + f.currentValue, 0);
@@ -76,19 +88,28 @@ export function useFunds() {
   }, [fundsQuery.data, pricesQuery.data]);
 
   const totalValue = fundsWithValue.reduce((s, f) => s + f.currentValue, 0);
+  const totalCost = fundsWithValue.reduce((s, f) => s + f.totalCost, 0);
+  const totalProfitLoss = totalCost > 0 ? totalValue - totalCost : null;
+  const totalProfitLossPercent = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : null;
 
   return {
     funds: fundsWithValue,
     totalValue,
+    totalCost,
+    totalProfitLoss,
+    totalProfitLossPercent,
     addFund: addMutation.mutateAsync,
     updateQuantity: (id: string, quantity: number) =>
       updateQuantityMutation.mutateAsync({ id, quantity }),
+    updateCostPerUnit: (id: string, values: UpdateCostPerUnitValues) =>
+      updateCostPerUnitMutation.mutateAsync({ id, values }),
     deleteFund: deleteMutation.mutate,
     refreshPrices,
     isLoading: fundsQuery.isLoading,
     isRefreshing: pricesQuery.isFetching,
     isAdding: addMutation.isPending,
     isUpdatingQuantity: updateQuantityMutation.isPending,
+    isUpdatingCostPerUnit: updateCostPerUnitMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };
 }

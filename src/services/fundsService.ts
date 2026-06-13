@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Fund, FundFormValues, UpdatePriceValues } from '../types';
+import type { Fund, FundFormValues, UpdatePriceValues, UpdateCostPerUnitValues } from '../types';
 
 export interface FundLivePrice {
   price: number;
@@ -34,6 +34,7 @@ export const fundsService = {
         fund_code: values.fund_code.toUpperCase().trim(),
         quantity: values.quantity,
         unit_price: values.unit_price,
+        cost_per_unit: values.cost_per_unit,
         price_updated_at: values.unit_price > 0 ? new Date().toISOString() : null,
       })
       .select()
@@ -50,6 +51,18 @@ export const fundsService = {
         unit_price: values.unit_price,
         price_updated_at: new Date().toISOString(),
       })
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateCostPerUnit(id: string, values: UpdateCostPerUnitValues): Promise<Fund> {
+    const { data, error } = await supabase
+      .from('funds')
+      .update({ cost_per_unit: values.cost_per_unit })
       .eq('id', id)
       .select()
       .single();
