@@ -110,10 +110,16 @@ export function useStocks() {
   );
 
   const totalValue = enrichedStocks.reduce((s, x) => s + x.currentValue, 0);
+  const totalCost = enrichedStocks.reduce((s, x) => s + x.costBasis, 0);
+  const totalProfitLoss = totalCost > 0 ? totalValue - totalCost : null;
+  const totalProfitLossPercent = totalCost > 0 ? ((totalValue - totalCost) / totalCost) * 100 : null;
 
   return {
     stocks: sortedStocks,
     totalValue,
+    totalCost,
+    totalProfitLoss,
+    totalProfitLossPercent,
     sortField,
     sortDirection,
     handleSort,

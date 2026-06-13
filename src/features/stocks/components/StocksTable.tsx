@@ -109,14 +109,6 @@ export function StocksTable({
               sortDirection={sortDirection}
               onSort={onSort}
             />
-            <SortableHeader
-              field="portfolioShare"
-              label="Pay %"
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={onSort}
-              className="hidden sm:table-cell"
-            />
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">
               Günlük K/Z (%)
             </th>
@@ -126,6 +118,14 @@ export function StocksTable({
               sortField={sortField}
               sortDirection={sortDirection}
               onSort={onSort}
+            />
+            <SortableHeader
+              field="portfolioShare"
+              label="Pay %"
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={onSort}
+              className="hidden sm:table-cell"
             />
             <SortableHeader
               field="currentValue"
@@ -153,19 +153,6 @@ export function StocksTable({
                 {stock.currentPrice > 0 ? formatCurrency(stock.currentPrice) : '—'}
               </td>
               <td className="px-4 py-3.5 hidden sm:table-cell">
-                <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full bg-blue-500"
-                      style={{ width: `${Math.min(stock.portfolioShare, 100)}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground">
-                    {stock.portfolioShare.toFixed(1)}%
-                  </span>
-                </div>
-              </td>
-              <td className="px-4 py-3.5 hidden sm:table-cell">
                 {stock.dailyChangePercent !== undefined ? (
                   <span className={cn('text-sm font-medium', stock.dailyChangePercent >= 0 ? 'text-emerald-500' : 'text-red-500')}>
                     {stock.dailyChangePercent >= 0 ? '+' : ''}{formatPercent(stock.dailyChangePercent)}
@@ -187,6 +174,19 @@ export function StocksTable({
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>
                 )}
+              </td>
+              <td className="px-4 py-3.5 hidden sm:table-cell">
+                <div className="flex items-center gap-2">
+                  <div className="h-1.5 w-16 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-blue-500"
+                      style={{ width: `${Math.min(stock.portfolioShare, 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {stock.portfolioShare.toFixed(1)}%
+                  </span>
+                </div>
               </td>
               <td className="px-4 py-3.5 text-sm font-medium">
                 {stock.currentValue > 0 ? formatCurrency(stock.currentValue) : '—'}
@@ -225,7 +225,6 @@ export function StocksTable({
                 <td className="px-4 py-3 hidden sm:table-cell" />
                 <td className="px-4 py-3" />
                 <td className="px-4 py-3 hidden sm:table-cell" />
-                <td className="px-4 py-3 hidden sm:table-cell" />
                 <td className="px-4 py-3">
                   {totalCost > 0 && (
                     <div className="flex flex-col">
@@ -238,6 +237,7 @@ export function StocksTable({
                     </div>
                   )}
                 </td>
+                <td className="px-4 py-3 hidden sm:table-cell" />
                 <td className="px-4 py-3 text-sm font-bold">{formatCurrency(totalValue)}</td>
                 <td />
               </tr>

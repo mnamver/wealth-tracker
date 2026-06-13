@@ -52,12 +52,10 @@ export function FundsTable({
           <tr className="border-b border-border">
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Fon Kodu</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Adet</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Birim Pay</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Güncel Değer</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden lg:table-cell">Toplam Maliyet</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Günlük</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Kar/Zarar</th>
             <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden md:table-cell">Pay %</th>
-            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground hidden sm:table-cell">Günlük</th>
+            <th className="px-4 py-3 text-left text-xs font-medium text-muted-foreground">Güncel Değer</th>
             <th className="w-28" />
           </tr>
         </thead>
@@ -83,22 +81,14 @@ export function FundsTable({
               <td className="px-4 py-3.5 text-sm text-muted-foreground hidden sm:table-cell">
                 {formatNumber(fund.quantity, 0)}
               </td>
-              <td className="px-4 py-3.5">
-                <span className={cn('text-sm font-mono', fund.currentPrice === 0 && 'text-muted-foreground')}>
-                  {fund.currentPrice > 0 ? `₺${fund.currentPrice.toFixed(6)}` : '—'}
-                </span>
-              </td>
-              <td className="px-4 py-3.5 text-sm font-medium">
-                {fund.currentValue > 0 ? formatCurrency(fund.currentValue) : '—'}
-              </td>
-              <td className="px-4 py-3.5 hidden lg:table-cell">
-                {fund.totalCost > 0 ? (
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-sm">{formatCurrency(fund.totalCost)}</span>
-                    <span className="text-xs text-muted-foreground font-mono">
-                      ₺{fund.cost_per_unit.toFixed(6)}/pay
-                    </span>
-                  </div>
+              <td className="px-4 py-3.5 hidden sm:table-cell">
+                {fund.dailyChangePercent !== null ? (
+                  <Badge
+                    variant={fund.dailyChangePercent >= 0 ? 'success' : 'danger'}
+                    className="text-xs"
+                  >
+                    {formatPercent(fund.dailyChangePercent)}
+                  </Badge>
                 ) : (
                   <span className="text-xs text-muted-foreground">—</span>
                 )}
@@ -132,17 +122,8 @@ export function FundsTable({
                   </span>
                 </div>
               </td>
-              <td className="px-4 py-3.5 hidden sm:table-cell">
-                {fund.dailyChangePercent !== null ? (
-                  <Badge
-                    variant={fund.dailyChangePercent >= 0 ? 'success' : 'danger'}
-                    className="text-xs"
-                  >
-                    {formatPercent(fund.dailyChangePercent)}
-                  </Badge>
-                ) : (
-                  <span className="text-xs text-muted-foreground">—</span>
-                )}
+              <td className="px-4 py-3.5 text-sm font-medium">
+                {fund.currentValue > 0 ? formatCurrency(fund.currentValue) : '—'}
               </td>
               <td className="px-4 py-3.5">
                 <div className="flex items-center gap-1">
@@ -175,12 +156,9 @@ export function FundsTable({
         {totalValue > 0 && (
           <tfoot>
             <tr className="border-t-2 border-border bg-muted/20">
-              <td className="px-4 py-3 text-sm font-semibold" colSpan={2}>Toplam</td>
-              <td className="px-4 py-3 hidden sm:table-cell" />
-              <td className="px-4 py-3 text-sm font-bold">{formatCurrency(totalValue)}</td>
-              <td className="px-4 py-3 text-sm text-muted-foreground hidden lg:table-cell">
-                {totalCost > 0 ? formatCurrency(totalCost) : '—'}
-              </td>
+              <td className="px-4 py-3 text-sm font-semibold">Toplam</td>
+              <td className="hidden sm:table-cell" />
+              <td className="hidden sm:table-cell" />
               <td className="px-4 py-3 hidden md:table-cell">
                 {totalProfitLoss !== null ? (
                   <div className="flex flex-col gap-0.5">
@@ -195,7 +173,9 @@ export function FundsTable({
                   </div>
                 ) : '—'}
               </td>
-              <td colSpan={3} />
+              <td className="hidden md:table-cell" />
+              <td className="px-4 py-3 text-sm font-bold">{formatCurrency(totalValue)}</td>
+              <td />
             </tr>
           </tfoot>
         )}
