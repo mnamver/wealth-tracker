@@ -24,15 +24,13 @@ export default function FundsPage() {
     totalProfitLoss,
     totalProfitLossPercent,
     addFund,
-    updateQuantity,
-    updateCostPerUnit,
+    updateFund,
     deleteFund,
     refreshPrices,
     isLoading,
     isRefreshing,
     isAdding,
-    isUpdatingQuantity,
-    isUpdatingCostPerUnit,
+    isUpdating,
     isDeleting,
   } = useFunds();
 
@@ -119,11 +117,9 @@ export default function FundsPage() {
             totalCost={totalCost}
             totalProfitLoss={totalProfitLoss}
             totalProfitLossPercent={totalProfitLossPercent}
-            onUpdateQuantity={updateQuantity}
-            onUpdateCostPerUnit={updateCostPerUnit}
+            onUpdate={updateFund}
             onDelete={deleteFund}
-            isUpdatingQuantity={isUpdatingQuantity}
-            isUpdatingCostPerUnit={isUpdatingCostPerUnit}
+            isUpdating={isUpdating}
             isDeleting={isDeleting}
           />
         </CardContent>

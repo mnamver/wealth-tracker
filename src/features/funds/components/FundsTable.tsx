@@ -1,11 +1,10 @@
 import { Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/button';
 import { Badge } from '../../../components/ui/badge';
-import { EditFundQuantityDialog } from './EditFundQuantityDialog';
-import { EditTotalCostDialog } from './EditTotalCostDialog';
+import { EditFundDialog } from './EditFundDialog';
 import { formatCurrency, formatNumber, formatPercent } from '../../../utils/formatters';
 import { cn } from '../../../lib/utils';
-import type { FundWithValue, UpdateCostPerUnitValues } from '../../../types';
+import type { FundWithValue } from '../../../types';
 
 interface FundsTableProps {
   funds: FundWithValue[];
@@ -13,11 +12,9 @@ interface FundsTableProps {
   totalCost: number;
   totalProfitLoss: number | null;
   totalProfitLossPercent: number | null;
-  onUpdateQuantity: (id: string, quantity: number) => Promise<unknown>;
-  onUpdateCostPerUnit: (id: string, values: UpdateCostPerUnitValues) => Promise<unknown>;
+  onUpdate: (id: string, values: { quantity: number; cost_per_unit: number }) => Promise<unknown>;
   onDelete: (id: string) => void;
-  isUpdatingQuantity: boolean;
-  isUpdatingCostPerUnit: boolean;
+  isUpdating: boolean;
   isDeleting: boolean;
 }
 
@@ -27,11 +24,9 @@ export function FundsTable({
   totalCost,
   totalProfitLoss,
   totalProfitLossPercent,
-  onUpdateQuantity,
-  onUpdateCostPerUnit,
+  onUpdate,
   onDelete,
-  isUpdatingQuantity,
-  isUpdatingCostPerUnit,
+  isUpdating,
   isDeleting,
 }: FundsTableProps) {
   if (funds.length === 0) {
@@ -127,17 +122,12 @@ export function FundsTable({
               </td>
               <td className="px-4 py-3.5">
                 <div className="flex items-center gap-1">
-                  <EditFundQuantityDialog
+                  <EditFundDialog
                     fundCode={fund.fund_code}
                     currentQuantity={fund.quantity}
-                    onSubmit={(qty) => onUpdateQuantity(fund.id, qty)}
-                    isLoading={isUpdatingQuantity}
-                  />
-                  <EditTotalCostDialog
-                    fundCode={fund.fund_code}
                     currentCostPerUnit={fund.cost_per_unit}
-                    onSubmit={(values) => onUpdateCostPerUnit(fund.id, values)}
-                    isLoading={isUpdatingCostPerUnit}
+                    onSubmit={(values) => onUpdate(fund.id, values)}
+                    isLoading={isUpdating}
                   />
                   <Button
                     variant="ghost"

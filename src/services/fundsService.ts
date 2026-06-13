@@ -59,22 +59,10 @@ export const fundsService = {
     return data;
   },
 
-  async updateCostPerUnit(id: string, values: UpdateCostPerUnitValues): Promise<Fund> {
+  async update(id: string, values: { quantity: number; cost_per_unit: number }): Promise<Fund> {
     const { data, error } = await supabase
       .from('funds')
-      .update({ cost_per_unit: values.cost_per_unit })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  },
-
-  async updateQuantity(id: string, quantity: number): Promise<Fund> {
-    const { data, error } = await supabase
-      .from('funds')
-      .update({ quantity })
+      .update({ quantity: values.quantity, cost_per_unit: values.cost_per_unit })
       .eq('id', id)
       .select()
       .single();

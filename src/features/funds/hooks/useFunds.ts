@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useMemo, useCallback } from 'react';
 import { fundsService } from '../../../services/fundsService';
-import type { FundFormValues, FundWithValue, UpdateCostPerUnitValues } from '../../../types';
+import type { FundFormValues, FundWithValue } from '../../../types';
 
 export function useFunds() {
   const queryClient = useQueryClient();
@@ -28,15 +28,9 @@ export function useFunds() {
     },
   });
 
-  const updateQuantityMutation = useMutation({
-    mutationFn: ({ id, quantity }: { id: string; quantity: number }) =>
-      fundsService.updateQuantity(id, quantity),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
-  });
-
-  const updateCostPerUnitMutation = useMutation({
-    mutationFn: ({ id, values }: { id: string; values: UpdateCostPerUnitValues }) =>
-      fundsService.updateCostPerUnit(id, values),
+  const updateMutation = useMutation({
+    mutationFn: ({ id, values }: { id: string; values: { quantity: number; cost_per_unit: number } }) =>
+      fundsService.update(id, values),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['funds'] }),
   });
 
@@ -99,17 +93,14 @@ export function useFunds() {
     totalProfitLoss,
     totalProfitLossPercent,
     addFund: addMutation.mutateAsync,
-    updateQuantity: (id: string, quantity: number) =>
-      updateQuantityMutation.mutateAsync({ id, quantity }),
-    updateCostPerUnit: (id: string, values: UpdateCostPerUnitValues) =>
-      updateCostPerUnitMutation.mutateAsync({ id, values }),
+    updateFund: (id: string, values: { quantity: number; cost_per_unit: number }) =>
+      updateMutation.mutateAsync({ id, values }),
     deleteFund: deleteMutation.mutate,
     refreshPrices,
     isLoading: fundsQuery.isLoading,
     isRefreshing: pricesQuery.isFetching,
     isAdding: addMutation.isPending,
-    isUpdatingQuantity: updateQuantityMutation.isPending,
-    isUpdatingCostPerUnit: updateCostPerUnitMutation.isPending,
+    isUpdating: updateMutation.isPending,
     isDeleting: deleteMutation.isPending,
   };
 }
