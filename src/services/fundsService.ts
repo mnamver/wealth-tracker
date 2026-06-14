@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import type { Fund, FundFormValues, UpdatePriceValues, UpdateCostPerUnitValues } from '../types';
+import type { Fund, FundFormValues, UpdatePriceValues } from '../types';
 
 export interface FundLivePrice {
   price: number;

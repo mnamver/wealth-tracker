@@ -114,7 +114,6 @@ export default function FundsPage() {
           <FundsTable
             funds={funds}
             totalValue={totalValue}
-            totalCost={totalCost}
             totalProfitLoss={totalProfitLoss}
             totalProfitLossPercent={totalProfitLossPercent}
             onUpdate={updateFund}

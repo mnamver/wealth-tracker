@@ -9,7 +9,6 @@ import type { FundWithValue } from '../../../types';
 interface FundsTableProps {
   funds: FundWithValue[];
   totalValue: number;
-  totalCost: number;
   totalProfitLoss: number | null;
   totalProfitLossPercent: number | null;
   onUpdate: (id: string, values: { quantity: number; cost_per_unit: number }) => Promise<unknown>;
@@ -21,7 +20,6 @@ interface FundsTableProps {
 export function FundsTable({
   funds,
   totalValue,
-  totalCost,
   totalProfitLoss,
   totalProfitLossPercent,
   onUpdate,
